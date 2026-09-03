@@ -54,3 +54,33 @@ Finally, run the simulation:
 ```sh
 ./obj_dir/Vtbench_top +UVM_TESTNAME=sig_model_test
 ```
+
+## Running with iSim
+
+[iSim](https://tn-si.com) is a SystemVerilog + VHDL simulator that ships a
+pre-compiled UVM library, so none of the setup above is needed for it: there
+is no UVM tarball to download and no `UVM_HOME` to set. `isim.sh` in this
+directory builds and runs the bench:
+
+    ./isim.sh
+
+It accepts the usual overrides as environment variables --- `UVM_TESTNAME`,
+`ISIM_TOP`, `ISIM_WORK`, and `ISIM_VLOG`/`ISIM_ELAB`/`ISIM` if the tools are
+not on `PATH`:
+
+    UVM_TESTNAME=sig_model_test ./isim.sh
+
+The three commands it runs are upstream's own build with exactly two
+substitutions --- `$UVM_HOME/uvm_pkg.sv` and `+incdir+$UVM_HOME` are replaced
+by `-uvm`, which maps the shipped library --- and `+define+UVM_NO_DPI`
+dropped, since that is a Verilator capability workaround and iSim's UVM DPI
+surface is real. The two explicit sources and `+incdir+$(pwd)` are unchanged,
+so the nine `.svh` class files and `sig_if.sv` resolve by the same module
+search the `verilator` line relies on.
+
+These commands are deliberately NOT in a fenced code block. `.github/workflows/test.yml`
+runs `tuttest README.md | bash -`, and with no snippet name `tuttest` emits
+*every* fenced block in this file; a fenced iSim block would therefore run on
+a CI runner that has no iSim installed and fail the job on every push. The
+indented form keeps this section out of `tuttest`'s output and leaves the
+Verilator CI job doing exactly what it did before.
