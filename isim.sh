@@ -14,8 +14,12 @@
 #                             WITH DPI rather than around it
 #
 # Everything else is upstream's own: the same two explicit sources in the
-# same order, and `+incdir+$(pwd)` so the nine .svh class files and sig_if.sv
-# resolve by the same module search the verilator line relies on.
+# same order, and `+incdir+$(pwd)` so the nine .svh class files `include
+# from sig_pkg.sv resolve.  ONE file is added: sig_if.sv.  Verilator finds the
+# `sig_if` interface by searching its +incdir directories for a file named after
+# the missing module; iSim (like VCS, Questa and dsim) compiles only the sources
+# it is given -- +incdir only affects `include -- so without it elaboration
+# stops with "Unknown module type: sig_if".
 #
 # UVM_HOME is never read.  There is nothing to download.
 set -euo pipefail
@@ -31,10 +35,11 @@ isim_run="${ISIM:-isim}"
 
 mkdir -p "$work"
 
-# analyse -- upstream's two explicit sources, upstream's own search path
+# analyse -- upstream's two explicit sources plus the interface Verilator finds
+# by itself, and upstream's own include path
 "$isim_vlog" -work "$work" -lib work -uvm \
     "+incdir+$here" \
-    "$here/sig_pkg.sv" "$here/tb.sv"
+    "$here/sig_if.sv" "$here/sig_pkg.sv" "$here/tb.sv"
 
 # elaborate -- -sir lowers, compiles and links the native image
 "$isim_elab" -work "$work" -lib work -uvm -top "$top" -sir
