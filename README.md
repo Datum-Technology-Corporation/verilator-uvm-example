@@ -75,8 +75,10 @@ substitutions --- `$UVM_HOME/uvm_pkg.sv` and `+incdir+$UVM_HOME` are replaced
 by `-uvm`, which maps the shipped library --- and `+define+UVM_NO_DPI`
 dropped, since that is a Verilator capability workaround and iSim's UVM DPI
 surface is real. The two explicit sources and `+incdir+$(pwd)` are unchanged,
-so the nine `.svh` class files and `sig_if.sv` resolve by the same module
-search the `verilator` line relies on.
+so the nine `.svh` class files resolve as `include`s. One file is added:
+`sig_if.sv`. Verilator finds the `sig_if` interface by searching its include
+directories for a matching file name; iSim, like other commercial simulators,
+compiles only the sources it is given, so the script names it.
 
 These commands are deliberately NOT in a fenced code block. `.github/workflows/test.yml`
 runs `tuttest README.md | bash -`, and with no snippet name `tuttest` emits
