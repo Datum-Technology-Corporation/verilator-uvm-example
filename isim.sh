@@ -22,11 +22,17 @@
 # stops with "Unknown module type: sig_if".
 #
 # UVM_HOME is never read.  There is nothing to download.
+#
+# ISIM_STAGE selects how far to go: `analyse` (analysis only), `elab`
+# (analyse + elaborate), or `run` (the default: all three) -- so a ladder
+# that grades the three rungs separately can reach each one by name.
 set -euo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 work="${ISIM_WORK:-$here/isim_work}"
 top="${ISIM_TOP:-tbench_top}"
+stage="${ISIM_STAGE:-run}"
+case "$stage" in analyse|elab|run) ;; *) echo "isim.sh: ISIM_STAGE must be analyse, elab or run (got '$stage')" >&2; exit 2;; esac
 test_name="${UVM_TESTNAME:-sig_model_test}"
 
 isim_vlog="${ISIM_VLOG:-isim-vlog}"
@@ -41,8 +47,12 @@ mkdir -p "$work"
     "+incdir+$here" \
     "$here/sig_if.sv" "$here/sig_pkg.sv" "$here/tb.sv"
 
+[ "$stage" = analyse ] && exit 0
+
 # elaborate -- -sir lowers, compiles and links the native image
 "$isim_elab" -work "$work" -lib work -uvm -top "$top" -sir
+
+[ "$stage" = elab ] && exit 0
 
 # run
 "$isim_run" -work "$work" -lib work -uvm -top "$top" "+UVM_TESTNAME=$test_name"
