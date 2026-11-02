@@ -17,7 +17,7 @@
 # same order, and `+incdir+$(pwd)` so the nine .svh class files `include
 # from sig_pkg.sv resolve.  ONE file is added: sig_if.sv.  Verilator finds the
 # `sig_if` interface by searching its +incdir directories for a file named after
-# the missing module; iSim (like VCS, Questa and dsim) compiles only the sources
+# the missing module; iSim (like VCS and Questa) compiles only the sources
 # it is given -- +incdir only affects `include -- so without it elaboration
 # stops with "Unknown module type: sig_if".
 #
