@@ -49,8 +49,8 @@ mkdir -p "$work"
 
 [ "$stage" = analyse ] && exit 0
 
-# elaborate -- -sir lowers, compiles and links the native image
-"$isim_elab" -work "$work" -lib work -uvm -top "$top" -sir
+# elaborate -- lowers, compiles and links the native image
+"$isim_elab" -work "$work" -lib work -uvm -top "$top"
 
 [ "$stage" = elab ] && exit 0
 
